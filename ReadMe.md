@@ -1,21 +1,16 @@
 
 # 🎓 G17-SYH
 
-A full-stack web application for concert and ticket management, built with React, Hono (Node.js), and SQLite. 🚀
+A full-stack web application for concert and ticket management, built with React, Hono (Node.js), and MYSQL. 🚀
 
 ---
-
-## 🌐 Live URL
-
-_Coming Soon_
 
 ---
 
 ## 📁 Clone the Repository
 
 ```bash
-git clone 
-cd G17-SYH
+git clone https://github.com/CSC105-2024/G17-Retick.git
 ```
 
 ---
@@ -101,8 +96,7 @@ Use login/signup to obtain a token and send it via `Authorization: Bearer <token
 
 ## 🧠 Project Structure
 
-```
-G17-SYH/
+```Retick/
 ├── frontend/       # React app
 └── backend/        # Hono API with TypeScript
     ├── controllers/
@@ -115,11 +109,8 @@ G17-SYH/
 
 ## 🧑‍💻 Contributors
 
-- 🧠 [Your Name Here]
+- 🧠 TEAM SYH
 - 👨‍🏫 CSC105-2024 Team
 
 ---
 
-## 📄 License
-
-MIT License © 2025 CSC105-2024
