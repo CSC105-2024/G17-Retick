@@ -1,7 +1,7 @@
 
 # 🎓 G17-SYH
 
-A full-stack web application for course and ticket management, built with React, Hono (Node.js), and SQLite. 🚀
+A full-stack web application for concert and ticket management, built with React, Hono (Node.js), and SQLite. 🚀
 
 ---
 
@@ -14,7 +14,7 @@ _Coming Soon_
 ## 📁 Clone the Repository
 
 ```bash
-git clone https://github.com/CSC105-2024/G14-AI-Hub.git
+git clone 
 cd G17-SYH
 ```
 
