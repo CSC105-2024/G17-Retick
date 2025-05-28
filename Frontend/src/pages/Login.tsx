@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -20,15 +20,18 @@ import popToast from '@/lib/popToast';
 import { ToastContainer } from 'react-toastify';
 import { loginUser, signupUser } from '@/api/user';
 import { useSignup } from '../hooks/use-users';
+import { useQueryClient } from '@tanstack/react-query';
 
 const Login = () => {
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
+  const defaultTab = location.pathname === '/signup' ? 'signup' : 'login';
   const {
     mutateAsync: signup,
     isLoading: isSignupLoading,
@@ -66,15 +69,14 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await loginUser({ email, password });
-      // console.log('respons is ', response);
-      setTimeout(() => {
-        popToast('Logged in successfully', 'success');
-        navigate('/profile');
-        setIsLoading(false);
-      }, 1500);
+      await loginUser({ email, password });
+      // Invalidate profile query so it refetches with new cookie
+      queryClient.invalidateQueries(['profile']);
+      popToast('Logged in successfully', 'success');
+      navigate('/profile');
     } catch (error) {
       popToast('Login failed. Please try again.', 'error');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -112,7 +114,7 @@ const Login = () => {
         phone: phoneNumber,
       });
       popToast('Account created successfully', 'success');
-      navigate('/profile');
+      navigate('/login');
     } catch (error: any) {
       popToast(
         error?.response?.data?.msg || 'Signup failed. Please try again.',
@@ -130,7 +132,7 @@ const Login = () => {
       <main className='flex-grow flex items-center justify-center py-12 bg-gray-50 dark:bg-gray-900'>
         <div className='w-full max-w-md px-4'>
           <Card className='border-0 shadow-lg'>
-            <Tabs defaultValue='login' className='w-full'>
+            <Tabs defaultValue={defaultTab} className='w-full'>
               <TabsList className='grid w-full grid-cols-2 mb-4'>
                 <TabsTrigger value='login'>Login</TabsTrigger>
                 <TabsTrigger value='signup'>Sign up</TabsTrigger>

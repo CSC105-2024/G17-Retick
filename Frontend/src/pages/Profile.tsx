@@ -382,7 +382,7 @@ const Profile = () => {
                 onChange={(e) =>
                   setEditTicket({
                     ...editTicket,
-                    price: Number(e.target.value),
+                    pricePerTicket: Number(e.target.value),
                   })
                 }
               />

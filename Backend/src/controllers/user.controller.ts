@@ -44,9 +44,9 @@ export const getCurrentUserController = async (c: Context) => {
 export const registerController = async (c: Context) => {
   try {
     const body = await c.req.json<createUserBody>();
-    const { email, name, password } = body;
+    const { email, name, password, phone } = body;
 
-    if (!email || !name || !password) {
+    if (!email || !name || !password || !phone) {
       return c.json(
         {
           success: false,
@@ -56,7 +56,7 @@ export const registerController = async (c: Context) => {
         400
       );
     }
-    const result = await createUser(email, password, name);
+    const result = await createUser(email, password, name, phone);
     if (!result.success) {
       return c.json(
         {
@@ -67,6 +67,7 @@ export const registerController = async (c: Context) => {
         409
       );
     }
+
     return c.json({
       success: true,
       data: result.user,

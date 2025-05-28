@@ -8,7 +8,9 @@ declare module 'hono' {
 import jwt from 'jsonwebtoken';
 
 export const authMiddleware = async (c: Context, next: () => Promise<void>) => {
+  console.log('here stuipd');
   const cookies = c.req.header('Cookie') || '';
+  console.log('Cookies:', cookies);
   const accessToken = cookies
     .split('; ')
     .find((row) => row.startsWith('accessToken='))
@@ -22,7 +24,7 @@ export const authMiddleware = async (c: Context, next: () => Promise<void>) => {
     const decoded = jwt.verify(accessToken, process.env.JWT_SECRET!) as {
       id: string;
     };
-    console.log('Decoded JWT:', decoded.id);
+    console.log('Decoddded JWT:', decoded.id);
     c.user = { id: decoded.id };
     await next();
   } catch (e) {

@@ -11,7 +11,12 @@ export const hashPassword = async (plainPassword: string) => {
   return await bcrypt.hash(plainPassword, 10);
 };
 
-export const createUser = async (email: string, password: string,name: string) => {
+export const createUser = async (
+  email: string,
+  password: string,
+  name: string,
+  phone: string
+) => {
   const existingUser = await db.user.findUnique({
     where: { email },
   });
@@ -27,6 +32,7 @@ export const createUser = async (email: string, password: string,name: string) =
       email,
       name,
       password: hashedPassword,
+      phone: phone,
     },
   });
   return { success: true, message: 'User created', user: newUser };
@@ -70,7 +76,7 @@ export const generateToken = (user: userPayLoad): string => {
   if (!secret) throw new Error('Missing JWT_SECRET');
 
   const payload = {
-    _id: user.id,
+    id: user.id,
     email: user.email,
     name: user.name,
   };
