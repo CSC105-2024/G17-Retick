@@ -1,7 +1,15 @@
 import { Axios } from '../../axiosInstance';
 
 export const getProfile = async () => {
-  const response = await Axios.get('/users/current');
+  // if (!document.cookie.includes('accessToken')) {
+  //   return {
+  //     success: false,
+  //     message: 'User not authenticated',
+  //     user: null,
+  //   };
+  // }
+  // Fetch the current user's profile
+  const response = await Axios.get('/users/current', { withCredentials: true });
   return response.data;
 };
 
@@ -38,4 +46,16 @@ export const signupUser = async ({
     phone,
   });
   return response.data;
+};
+
+export const updateProfile = async (data: {
+  name?: string;
+  phone?: string;
+}) => {
+  const response = await Axios.put('/users/update-profile', data);
+  return response.data;
+};
+
+export const logoutUser = async () => {
+  await Axios.post('/users/logout');
 };

@@ -11,7 +11,7 @@ export const hashPassword = async (plainPassword: string) => {
   return await bcrypt.hash(plainPassword, 10);
 };
 
-export const createUser = async (email: string, password: string) => {
+export const createUser = async (email: string, password: string,name: string) => {
   const existingUser = await db.user.findUnique({
     where: { email },
   });
@@ -57,7 +57,7 @@ export const updateUsername = async (userId: string, newUsername: string) => {
   };
 };
 
-export const generateRefreshToken = (userId: number): string => {
+export const generateRefreshToken = (userId: string): string => {
   const refreshSecret = process.env.REFRESH_TOKEN_SECRET_KEY;
   if (!refreshSecret) throw new Error('Missing REFRESH_TOKEN_SECRET_KEY');
 
@@ -112,6 +112,34 @@ export const getUserSoldTickets = async (userId: string) => {
       success: false,
       message: 'Error retrieving tickets',
       tickets: null,
+    };
+  }
+};
+
+export const updateUser = async (
+  userId: string,
+  name?: string,
+  phone?: string
+) => {
+  try {
+    const updatedUser = await db.user.update({
+      where: { id: userId },
+      data: {
+        ...(name && { name }),
+        ...(phone && { phone }),
+      },
+    });
+    return {
+      success: true,
+      message: 'User updated successfully',
+      user: updatedUser,
+    };
+  } catch (error) {
+    console.error('Error updating user:', error);
+    return {
+      success: false,
+      message: 'Error updating user',
+      user: null,
     };
   }
 };

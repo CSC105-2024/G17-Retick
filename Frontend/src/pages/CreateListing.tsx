@@ -323,18 +323,13 @@ const CreateListing = () => {
                         <SelectValue placeholder='Select ticket type' />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value='Mobile Ticket'>
-                          Mobile Ticket
+                        <SelectItem value='VIP'>VIP</SelectItem>
+                        <SelectItem value='Standard'>Standard</SelectItem>
+                        <SelectItem value='General Admission'>
+                          General Admission
                         </SelectItem>
-                        <SelectItem value='Print-at-Home'>
-                          Print-at-Home
-                        </SelectItem>
-                        <SelectItem value='Physical Ticket'>
-                          Physical Ticket
-                        </SelectItem>
-                        <SelectItem value='Box Office Pickup'>
-                          Box Office Pickup
-                        </SelectItem>
+                        <SelectItem value='Premium'>Premium</SelectItem>
+                        <SelectItem value='Backstage'>Backstage</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

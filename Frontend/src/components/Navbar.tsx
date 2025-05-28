@@ -1,10 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { User, LogIn, Menu, X, Search, Ticket } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { getProfile } from '@/api/user';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ['profile'],
+    queryFn: getProfile,
+  });
+  const user = profile?.user;
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -47,22 +54,28 @@ const Navbar = () => {
               <Search className='h-5 w-5' />
             </Button>
           </Link>
-          <Link to='/login'>
-            <Button variant='outline'>
-              <LogIn className='h-4 w-4 mr-2' />
-              Log in
-            </Button>
-          </Link>
-          <Link to='/signup'>
-            <Button className='bg-purple-600 hover:bg-purple-700'>
-              Sign up
-            </Button>
-          </Link>
-          <Link to='/profile'>
-            <Button variant='outline' className='rounded-full'>
-              <User />
-            </Button>
-          </Link>
+
+          {user ? (
+            <Link to='/profile'>
+              <Button variant='outline' className='rounded-full'>
+                <User />
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link to='/login'>
+                <Button variant='outline'>
+                  <LogIn className='h-4 w-4 mr-2' />
+                  Log in
+                </Button>
+              </Link>
+              <Link to='/signup'>
+                <Button className='bg-purple-600 hover:bg-purple-700'>
+                  Sign up
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}

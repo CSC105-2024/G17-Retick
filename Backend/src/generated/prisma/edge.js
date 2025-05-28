@@ -173,7 +173,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "D:\\Desktop\\KMUTT\\FYSS\\CSC105\\TicketSwap\\Backend\\src\\generated\\prisma",
+      "value": "/Users/adorosis/Downloads/Retick/Backend/src/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -182,12 +182,12 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "darwin-arm64",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "D:\\Desktop\\KMUTT\\FYSS\\CSC105\\TicketSwap\\Backend\\prisma\\schema.prisma",
+    "sourceFilePath": "/Users/adorosis/Downloads/Retick/Backend/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -201,6 +201,7 @@ const config = {
     "db"
   ],
   "activeProvider": "mysql",
+  "postinstall": true,
   "inlineDatasources": {
     "db": {
       "url": {

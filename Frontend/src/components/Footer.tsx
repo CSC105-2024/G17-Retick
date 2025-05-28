@@ -24,7 +24,7 @@ const Footer = () => {
             <ul className='space-y-2'>
               <li>
                 <Link
-                  to='/events'
+                  to='/tickets'
                   className='text-gray-400 hover:text-white transition-colors'
                 >
                   Browse Events

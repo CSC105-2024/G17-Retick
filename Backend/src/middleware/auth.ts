@@ -1,4 +1,10 @@
 import type { Context } from 'hono';
+
+declare module 'hono' {
+  interface Context {
+    user?: { id: string };
+  }
+}
 import jwt from 'jsonwebtoken';
 
 export const authMiddleware = async (c: Context, next: () => Promise<void>) => {
@@ -16,9 +22,8 @@ export const authMiddleware = async (c: Context, next: () => Promise<void>) => {
     const decoded = jwt.verify(accessToken, process.env.JWT_SECRET!) as {
       id: string;
     };
-    console.log('Decoded JWT:', decoded._id);
-    // Set c.user for downstream handlers
-    c.user = { id: decoded._id };
+    console.log('Decoded JWT:', decoded.id);
+    c.user = { id: decoded.id };
     await next();
   } catch (e) {
     return c.json({ message: 'Unauthorized' }, 401);

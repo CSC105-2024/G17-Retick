@@ -17,6 +17,7 @@ import {
   deleteTicket,
   changePhoneNumber,
   ispasswordMatch,
+  updateUser,
 } from '../models/user.model.ts';
 import { setCookie, deleteCookie } from 'hono/cookie';
 import jwt from 'jsonwebtoken';
@@ -111,7 +112,7 @@ export const loginController = async (c: Context) => {
       email: existingUser.email,
       name: existingUser.name ?? '',
     });
-    const refreshToken = generateRefreshToken(Number(existingUser.id));
+    const refreshToken = generateRefreshToken(existingUser.id);
 
     const userResponse = {
       id: existingUser.id,
@@ -161,18 +162,19 @@ export const logoutController = async (c: Context) => {
 export const refreshTokenController = async (c: Context) => {
   try {
     const cookies = c.req.header('Cookie') || '';
+    console.log('Cooddkies:', cookies);
     const refreshToken = cookies
       .split('; ')
       .find((row) => row.startsWith('refreshToken='))
       ?.split('=')[1];
-
+    console.log('Refresh Token:', refreshToken);
     if (!refreshToken) {
       return c.json({ message: 'Refresh token not found' }, 401);
     }
     const decoded = jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET_KEY!
-    ) as { id: number };
+    ) as { id: string };
 
     if (!decoded?.id) {
       return c.json({ message: 'Invalid refresh token' }, 401);
@@ -193,7 +195,7 @@ export const refreshTokenController = async (c: Context) => {
       name: user.name ?? '',
     });
 
-    const newRefreshToken = generateRefreshToken(Number(user.id));
+    const newRefreshToken = generateRefreshToken(user.id);
 
     const isProduction = process.env.NODE_ENV === 'production';
 
@@ -217,7 +219,7 @@ export const refreshTokenController = async (c: Context) => {
 };
 
 const generateTokensController = async (
-  userId: number
+  userId: string
 ): Promise<{ accessToken: string; refreshToken: string }> => {
   try {
     const existingUser = await db.user.findFirst({
@@ -235,12 +237,29 @@ const generateTokensController = async (
       throw new Error('Email or name cannot be null.');
     }
     const accessToken = generateToken({ id, email, name });
-    const refreshToken = generateRefreshToken(Number(id));
+    const refreshToken = generateRefreshToken(id);
 
     return { accessToken, refreshToken };
   } catch (e) {
     console.log(e);
     throw new Error('Failed to generate tokens');
+  }
+};
+
+export const updateProfileController = async (c: Context) => {
+  try {
+    if (!c.user) return c.json({ message: 'Unauthorized' }, 401);
+    const body = await c.req.json();
+    const { name, phone } = body;
+
+    const response = await updateUser(c.user.id, name, phone);
+    if (!response.success) {
+      return c.json({ message: response.message }, 400);
+    }
+
+    return c.json({ message: 'Profile updated', user: response.user }, 200);
+  } catch (e) {
+    return c.json({ message: 'Update user failed' }, 500);
   }
 };
 
@@ -302,7 +321,7 @@ export const updateUsernameController = async (c: Context) => {
     }
 
     const decoded = jwt.verify(accessToken, process.env.JWT_SECRET!) as {
-      id: number;
+      id: string;
     };
 
     if (!decoded?.id) {

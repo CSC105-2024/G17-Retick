@@ -14,10 +14,18 @@ userRouter.get(
 userRouter.post('/logout', userController.logoutController);
 userRouter.put('/update-phone', userController.updatePhonenumberController);
 userRouter.put('/update-name', userController.updateUsernameController);
+userRouter.put(
+  '/update-profile',
+  authMiddleware,
+  userController.updateProfileController
+);
+
 userRouter.delete(
   '/tickets/:ticketId',
   userController.deleteUserTicketController
 );
 userRouter.get('/sold-tickets', userController.getUserSoldTicketsController);
+
+userRouter.post('/refresh-token', userController.refreshTokenController);
 
 export { userRouter };

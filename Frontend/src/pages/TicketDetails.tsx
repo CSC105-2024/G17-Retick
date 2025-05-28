@@ -4,10 +4,12 @@ import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import { useQuery } from '@tanstack/react-query';
 import { useTicketById } from '@/hooks/use-tickets';
+import { useNavigate } from 'react-router-dom';
 
 const TicketDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { data: ticket, isLoading, error } = useTicketById(id);
+  const navigate = useNavigate();
   // const ticket = mockTickets.find((ticket) => ticket.id === id);
 
   if (isLoading) {
@@ -22,20 +24,29 @@ const TicketDetails = () => {
     return <div className='container mx-auto px-4 py-8'>Ticket not found</div>;
   }
 
+  const DEFAULT_IMAGE_URL =
+    'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+
   return (
     <div className='min-h-screen flex flex-col bg-gray-50 justify-between'>
       <Navbar />
-
       <div className='container mx-auto px-4 py-8'>
+        <button
+          className='mb-6 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded transition'
+          onClick={() => navigate('/tickets')}
+        >
+          &larr; Back to Tickets
+        </button>
         <div className='max-w-4xl mx-auto'>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
             {/* Ticket Image */}
             <div className='bg-gray-100 rounded-lg overflow-hidden'>
               {ticket.imageUrl ? (
                 <img
-                  src={ticket.imageUrl}
+                  src={ticket.imageUrl || DEFAULT_IMAGE_URL}
                   alt={ticket.eventName}
                   className='w-full h-full object-cover'
+                  onError={(e) => (e.currentTarget.src = DEFAULT_IMAGE_URL)}
                 />
               ) : (
                 <div className='w-full h-64 flex items-center justify-center text-gray-500'>
@@ -114,9 +125,9 @@ const TicketDetails = () => {
                       ${ticket.pricePerTicket.toFixed(2)}
                     </p>
                   </div>
-                  <button className='bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg'>
+                  {/* <button className='bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg'>
                     Buy Now
-                  </button>
+                  </button> */}
                 </div>
               </div>
 
@@ -143,6 +154,9 @@ const TicketDetails = () => {
                     <p className='text-sm text-gray-500'>
                       Member since{' '}
                       {new Date(ticket.seller.createdAt).toLocaleDateString()}
+                    </p>
+                    <p className=''>
+                      Phone: {ticket.seller.phone || 'Unknown'}
                     </p>
                   </div>
                 </div>

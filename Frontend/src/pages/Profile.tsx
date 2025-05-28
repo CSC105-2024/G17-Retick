@@ -13,25 +13,29 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Edit } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getProfile } from '@/api/user';
+import { getProfile, logoutUser } from '@/api/user';
 import {
   useDeleteTicket,
   useTickets,
   useUpdateTicket,
 } from '../hooks/use-tickets';
 import { useNavigate } from 'react-router-dom';
+import { useUpdateProfile } from '@/hooks/use-users';
 
 const Profile = () => {
   const navigate = useNavigate();
-
+  const [editProfile, setEditProfile] = useState(false);
+  const [profileError, setProfileError] = useState('');
   const [openPurchaseId, setOpenPurchaseId] = useState<string | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editTicket, setEditTicket] = useState<any>(null);
   const { data: res = [], isTicketLoading, ticketError } = useTickets();
   const { mutate: updateTicket, isLoading: isUpdating } = useUpdateTicket();
   const { mutate: deleteTicket, isLoading: isDeleting } = useDeleteTicket();
+  const { mutate: updateProfileMutate, isLoading: isProfileUpdating } =
+    useUpdateProfile();
 
   const {
     data: response,
@@ -40,10 +44,27 @@ const Profile = () => {
   } = useQuery({
     queryKey: ['profile'],
     queryFn: getProfile,
+    // retry: 3,
+    onError: (err) => {
+      console.error('Error fetching profile:', err);
+      navigate('login');
+    },
   });
 
   const user = response?.user;
   const tickets = res || [];
+
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name || '');
+      setPhone(user.phone || '');
+      setEmail(user.email || '');
+    }
+  }, [user]);
 
   const listingHistory = tickets
     .map((ticket) => (ticket.sellerId === user?.id ? ticket : null))
@@ -88,6 +109,49 @@ const Profile = () => {
     );
   };
 
+  const handleProfileSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateProfile()) return;
+    updateProfileMutate(
+      { name, phone },
+      {
+        onSuccess: () => {
+          setEditProfile(false);
+          setProfileError('');
+        },
+        onError: () => {
+          setProfileError('Failed to update profile');
+        },
+      }
+    );
+  };
+
+  const validateProfile = () => {
+    if (!name.trim() || name.length < 2) {
+      setProfileError('Name must be at least 2 characters.');
+      return false;
+    }
+    if (!phone.trim() || !/^\d{10}$/.test(phone)) {
+      setProfileError('Phone number must be 10 digits.');
+      return false;
+    }
+    setProfileError('');
+    return true;
+  };
+
+  const handleLogout = async () => {
+    try {
+      const res = await logoutUser();
+    } catch (error) {
+      console.error('Logout failed:', error);
+      alert('Failed to logout. Please try again.');
+    } finally {
+      localStorage.clear();
+      sessionStorage.clear();
+      navigate('/login');
+    }
+  };
+
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading profile</div>;
   if (!user) return <div>No user data</div>;
@@ -113,15 +177,16 @@ const Profile = () => {
                       </AvatarFallback>
                     </Avatar>
                     <h2 className='text-xl font-bold mb-1'>{user.name}</h2>
-                    <Button className='mt-4 w-full bg-purple-600 hover:bg-purple-700'>
+                    <Button
+                      className='mt-4 w-full bg-purple-600 hover:bg-purple-700'
+                      onClick={() => setEditProfile(!editProfile)}
+                    >
                       <Edit className='h-4 w-4 mr-2' />
                       Edit Profile
                     </Button>
                     <Button
                       className='mt-2 w-full bg-red-500 hover:bg-red-800'
-                      onClick={() =>
-                        alert('Logout functionality not implemented')
-                      }
+                      onClick={handleLogout}
                     >
                       Logout
                     </Button>
@@ -140,11 +205,17 @@ const Profile = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form className='space-y-4'>
+                  <form className='space-y-4' onSubmit={handleProfileSubmit}>
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                       <div className='space-y-2'>
                         <Label htmlFor='name'>Name</Label>
-                        <Input id='name' defaultValue={user?.name || ''} />
+                        <Input
+                          id='name'
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          // defaultValue={user?.name || ''}
+                          disabled={!editProfile}
+                        />
                       </div>
                     </div>
                     <div className='space-y-2'>
@@ -152,7 +223,8 @@ const Profile = () => {
                       <Input
                         id='email'
                         type='email'
-                        defaultValue={user.email || ' '}
+                        value={user.email}
+                        disabled
                       />
                     </div>
                     <div className='space-y-2'>
@@ -160,15 +232,25 @@ const Profile = () => {
                       <Input
                         id='phone'
                         type='tel'
-                        placeholder={user.phone || 'Enter your phone number'}
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        disabled={!editProfile}
                       />
                     </div>
-                    <Button
-                      type='submit'
-                      className='bg-purple-600 hover:bg-purple-700'
-                    >
-                      Save Changes
-                    </Button>
+                    {profileError && (
+                      <div className='text-red-600 text-sm mb-2'>
+                        {profileError}
+                      </div>
+                    )}
+                    {editProfile && (
+                      <Button
+                        type='submit'
+                        className='bg-purple-600 hover:bg-purple-700'
+                        disabled={isProfileUpdating}
+                      >
+                        {isProfileUpdating ? 'Saving...' : 'Save Changes'}
+                      </Button>
+                    )}
                   </form>
                 </CardContent>
               </Card>
@@ -239,7 +321,7 @@ const Profile = () => {
                                 <Button
                                   variant='outline'
                                   size='sm'
-                                  className='text-red-600 hover:bg-red-50'
+                                  className='text-red-600 hover:bg-red-500'
                                   onClick={() => deleteTicket(listing.id)}
                                   disabled={isDeleting}
                                 >
