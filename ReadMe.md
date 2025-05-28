@@ -1,5 +1,5 @@
 
-# 🎓 G17-SYH - AI Hub
+# 🎓 G17-SYH
 
 A full-stack web application for course and ticket management, built with React, Hono (Node.js), and SQLite. 🚀
 
